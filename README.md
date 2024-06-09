@@ -30,5 +30,7 @@ Ported by [Xevnet](https://xevnet.au).
 # Installation
 
 i) Download the release
+
 ii) Copy all files to `TBD`
+
 iii) Launch your server and enjoy this release!
