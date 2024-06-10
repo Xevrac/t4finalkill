@@ -35,7 +35,8 @@ main()
 	
 	// register sabotage spawn influencer callback
 	level.callbackPlayerSpawnGenerateInfluencers= ::sabPlayerSpawnGenerateInfluencers;
-	// register the finalkillcam and associate to global func
+	// register the finalkillcam and associate to onplayerkilled
+	level.onPlayerKilled = ::onPlayerKilled;
 	
 	level.teamBased = true;
 	level.overrideTeamScore = true;
@@ -144,7 +145,6 @@ onRoundSwitch()
 		level.halftimeType = "halftime";
 		game["switchedsides"] = !game["switchedsides"];
 	}
-
 
 }
 
@@ -342,7 +342,8 @@ onSpawnPlayerUnified()
 							"cg_deadHearTeamLiving", 0,
 							"cg_deadHearAllLiving", 0,
 							"cg_everyoneHearsEveryone", 0,
-							"g_compassShowEnemies", 1 );
+							// Disable the enemy pips on HUD map
+							"g_compassShowEnemies", 0 );
 	}
 	
 	maps\mp\gametypes\_spawning::onSpawnPlayer_Unified();
@@ -862,6 +863,10 @@ bombDefused( object )
 	level notify("bomb_defused");	
 }
 
+onPlayerKilled(eInflictor, attacker, iDamage, sMeansOfDeath, sWeapon, vDir, sHitLoc, psOffsetTime, deathAnimDuration)
+{
+   thread maps\mp\gametypes\_finalkillcam::onPlayerKilled(eInflictor, attacker, iDamage, sMeansOfDeath, sWeapon, vDir, sHitLoc, psOffsetTime, deathAnimDuration);
+}
 
 onEndGame( winningTeam )
 {
