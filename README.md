@@ -32,6 +32,7 @@ Ported by [Xevnet](https://xevnet.au).
   * When a player is killed by artillery
 * _finalkillcam.gsc only supports **absolute** victories and losses
   * I.e. you cannot display finalkillcam on tie, draw, intermission, end of regulation etc.
+  * We may implement this at a later time - Feel free to fork and implement yourself if wanted
 * You can press `F3` to change from 3rd Person and 1st Person during the final kill
 
 # Installation
