@@ -1,5 +1,3 @@
-> 🏗️ This project is not yet complete, it will **not** function, check back later!
-
 # t4finalkill
 Final Kill Cam mod for Plutonium T4 (MP).
 
