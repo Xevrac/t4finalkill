@@ -171,36 +171,45 @@ default_onTimeLimit()
 
 default_onScoreLimit()
 {
-	if ( !level.endGameOnScoreLimit )
-		return;
+    if ( !level.endGameOnScoreLimit )
+        return;
 
-	winner = undefined;
-	
-	if ( level.teamBased )
-	{
-		if ( game["teamScores"]["allies"] == game["teamScores"]["axis"] )
-			winner = "tie";
-		else if ( game["teamScores"]["axis"] > game["teamScores"]["allies"] )
-			winner = "axis";
-		else
-			winner = "allies";
-		logString( "scorelimit, win: " + winner + ", allies: " + game["teamScores"]["allies"] + ", opfor: " + game["teamScores"]["axis"] );
-	}
-	else
-	{
-		winner = maps\mp\gametypes\_globallogic::getHighestScoringPlayer();
-		if ( isDefined( winner ) )
-			logString( "scorelimit, win: " + winner.name );
-		else
-			logString( "scorelimit, tie" );
-	}
-	
-	makeDvarServerInfo( "ui_text_endreason", game["strings"]["score_limit_reached"] );
-	setDvar( "ui_text_endreason", game["strings"]["score_limit_reached"] );
-	
-	level.forcedEnd = true; // no more rounds if scorelimit is hit
-	thread maps\mp\gametypes\_finalkillcam::endGame( winner, game["strings"]["score_limit_reached"] );
+    winner = undefined;
+    
+    if ( level.teamBased )
+    {
+        if ( game["teamScores"]["allies"] == game["teamScores"]["axis"] )
+            winner = "tie";
+        else if ( game["teamScores"]["axis"] > game["teamScores"]["allies"] )
+            winner = "axis";
+        else
+            winner = "allies";
+        logString( "scorelimit, win: " + winner + ", allies: " + game["teamScores"]["allies"] + ", opfor: " + game["teamScores"]["axis"] );
+    }
+    else
+    {
+        winner = maps\mp\gametypes\_globallogic::getHighestScoringPlayer();
+        if ( isDefined( winner ) )
+            logString( "scorelimit, win: " + winner.name );
+        else
+            logString( "scorelimit, tie" );
+    }
+    
+    makeDvarServerInfo( "ui_text_endreason", game["strings"]["score_limit_reached"] );
+    setDvar( "ui_text_endreason", game["strings"]["score_limit_reached"] );
+    
+    level.forcedEnd = true; // no more rounds if scorelimit is hit
+    
+    // Handle final kill cam for both winner and tie
+	// Note the tie has score_limit_reached string which may appear incorrect 
+	// May correct later - Xevrac
+    if (winner == "tie") {
+        thread maps\mp\gametypes\_finalkillcam::endGame(undefined, game["strings"]["score_limit_reached"] );
+    } else {
+        thread maps\mp\gametypes\_finalkillcam::endGame(winner, game["strings"]["score_limit_reached"] );
+    }
 }
+
 
 onSpawnPlayerUnified()
 {
