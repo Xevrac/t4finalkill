@@ -104,7 +104,8 @@ main()
 	level.onTeamOutcomeNotify = ::onTeamOutcomeNotify;
 	level.onEndGame = ::onEndGame;
 	level.getTimeLimitDvarValue = ::getTimeLimitDvarValue;
-	level.onScoreLimit = ::default_onScoreLimit;
+	// Comment out as .endGameOnScoreLimit is false
+	// level.onScoreLimit = ::default_onScoreLimit;
 	level.onPlayerKilled = ::onPlayerKilled;
 
 	level.endGameOnScoreLimit = false;
