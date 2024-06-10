@@ -35,6 +35,6 @@ Ported by [Xevnet](https://xevnet.au).
 
 i) Download the release
 
-ii) Copy all files to `TBD`
+ii) Copy all files from `gsc` to `.\t4\main_shared\maps\mp\gametypes\`
 
 iii) Launch your server and enjoy this release!
