@@ -198,16 +198,10 @@ default_onScoreLimit()
     makeDvarServerInfo( "ui_text_endreason", game["strings"]["score_limit_reached"] );
     setDvar( "ui_text_endreason", game["strings"]["score_limit_reached"] );
     
-    level.forcedEnd = true; // no more rounds if scorelimit is hit
-    
-    // Handle final kill cam for both winner and tie
-	// Note the tie has score_limit_reached string which may appear incorrect 
-	// May correct later - Xevrac
-    if (winner == "tie") {
-        thread maps\mp\gametypes\_finalkillcam::endGame(undefined, game["strings"]["score_limit_reached"] );
-    } else {
-        thread maps\mp\gametypes\_finalkillcam::endGame(winner, game["strings"]["score_limit_reached"] );
-    }
+	level.forcedEnd = true; // no more rounds if scorelimit is hit
+	// Reverts the game tie method
+	// _finalkillcam is absolute and does not handle tie breakers yet
+	thread maps\mp\gametypes\_finalkillcam::endGame( winner, game["strings"]["score_limit_reached"] );
 }
 
 
