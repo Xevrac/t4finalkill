@@ -401,6 +401,12 @@ endGame( winner, endReasonText )
 					case "overtime":
 						player maps\mp\gametypes\_globallogic::leaderDialogOnPlayer( "overtime" );
 						break;
+					case "finalfight":
+						player maps\mp\gametypes\_globallogic::leaderDialogOnPlayer( "finalfight" );
+						break;
+					case "endregulation":
+						player maps\mp\gametypes\_globallogic::leaderDialogOnPlayer( "side_switch" );
+						break;	
 					default:
 						player maps\mp\gametypes\_globallogic::leaderDialogOnPlayer( "side_switch" );
 						break;
@@ -476,6 +482,9 @@ endGame( winner, endReasonText )
             map_restart( true );
             return;
         }
+
+		if ( isDefined( maps\mp\gametypes\_globallogic::default_onRoundEndGame ) )
+			winner = [[maps\mp\gametypes\_globallogic::default_onRoundEndGame]]( winner );
         
 		if ( maps\mp\gametypes\_globallogic::hitRoundLimit() )
 			endReasonText = game["strings"]["round_limit_reached"];
