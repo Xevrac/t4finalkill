@@ -35,6 +35,7 @@ main()
 	
 	// register sabotage spawn influencer callback
 	level.callbackPlayerSpawnGenerateInfluencers= ::sabPlayerSpawnGenerateInfluencers;
+	// register the finalkillcam and associate to global func
 	
 	level.teamBased = true;
 	level.overrideTeamScore = true;
@@ -143,6 +144,8 @@ onRoundSwitch()
 		level.halftimeType = "halftime";
 		game["switchedsides"] = !game["switchedsides"];
 	}
+
+
 }
 
 
@@ -261,7 +264,8 @@ onOvertime()
 							"cg_deadHearTeamLiving", 0,
 							"cg_deadHearAllLiving", 0,
 							"cg_everyoneHearsEveryone", 0,
-							"g_compassShowEnemies", 1 );
+							// Disable showing of enemies on HUD map
+							"g_compassShowEnemies", 0 );
 	}
 
 	waitTime = 0;
@@ -275,7 +279,8 @@ onOvertime()
 		wait ( 1.0 );
 	}
 
-	thread maps\mp\gametypes\_globallogic::endGame( "tie", game["strings"]["tie"] );
+	// thread maps\mp\gametypes\_globallogic::endGame( "tie", game["strings"]["tie"] );
+	thread maps\mp\gametypes\_finalkillcam::endGame( "tie", game["strings"]["tie"] );
 }
 
 
@@ -289,11 +294,13 @@ onDeadEvent( team )
 		if ( level.bombPlanted )
 		{
 			[[level._setTeamScore]]( level.bombPlantedBy, [[level._getTeamScore]]( level.bombPlantedBy ) + 1 );
-			thread maps\mp\gametypes\_globallogic::endGame( level.bombPlantedBy, game["strings"][level.bombPlantedBy+"_mission_accomplished"] );
+			// thread maps\mp\gametypes\_globallogic::endGame( level.bombPlantedBy, game["strings"][level.bombPlantedBy+"_mission_accomplished"] );
+			thread maps\mp\gametypes\_finalkillcam::endGame( level.bombPlantedBy, game["strings"][level.bombPlantedBy+"_mission_accomplished"] );
 		}
 		else
 		{
-			thread maps\mp\gametypes\_globallogic::endGame( "tie", game["strings"]["tie"] );
+			// thread maps\mp\gametypes\_globallogic::endGame( "tie", game["strings"]["tie"] );
+			thread maps\mp\gametypes\_finalkillcam::endGame( "tie", game["strings"]["tie"] );
 		}
 	}
 	else if ( level.bombPlanted )
@@ -305,12 +312,14 @@ onDeadEvent( team )
 		}
 			
 		[[level._setTeamScore]]( level.bombPlantedBy, [[level._getTeamScore]]( level.bombPlantedBy ) + 1 );
-		thread maps\mp\gametypes\_globallogic::endGame( level.bombPlantedBy, game["strings"][level.otherTeam[level.bombPlantedBy]+"_eliminated"] );
+		// thread maps\mp\gametypes\_globallogic::endGame( level.bombPlantedBy, game["strings"][level.otherTeam[level.bombPlantedBy]+"_eliminated"] );
+		thread maps\mp\gametypes\_finalkillcam::endGame( level.bombPlantedBy, game["strings"][level.otherTeam[level.bombPlantedBy]+"_eliminated"] );
 	}
 	else
 	{
 		[[level._setTeamScore]]( level.otherTeam[team], [[level._getTeamScore]]( level.otherTeam[team] ) + 1 );
-		thread maps\mp\gametypes\_globallogic::endGame( level.otherTeam[team], game["strings"][team+"_eliminated"] );
+		// thread maps\mp\gametypes\_globallogic::endGame( level.otherTeam[team], game["strings"][team+"_eliminated"] );
+		thread maps\mp\gametypes\_finalkillcam::endGame( level.otherTeam[team], game["strings"][team+"_eliminated"] );
 	}
 }
 
@@ -704,7 +713,8 @@ onUse( player )
 		
 		if ( level.inOverTime && isDefined( level.plantingTeamDead ) )
 		{
-			thread maps\mp\gametypes\_globallogic::endGame( player.pers["team"], game["strings"][level.bombPlantedBy+"_eliminated"] );
+			// thread maps\mp\gametypes\_globallogic::endGame( player.pers["team"], game["strings"][level.bombPlantedBy+"_eliminated"] );
+			thread maps\mp\gametypes\_finalkillcam::endGame( player.pers["team"], game["strings"][level.bombPlantedBy+"_eliminated"] );
 			return;
 		}
 		
@@ -789,7 +799,8 @@ bombPlanted( destroyedObj, team )
 	wait 3;
 	
 	// end the round without resetting the timer
-	thread maps\mp\gametypes\_globallogic::endGame( team, game["strings"]["target_destroyed"] );
+	// thread maps\mp\gametypes\_globallogic::endGame( team, game["strings"]["target_destroyed"] );
+	thread maps\mp\gametypes\_finalkillcam::endGame( team, game["strings"]["target_destroyed"] );
 }
 
 
