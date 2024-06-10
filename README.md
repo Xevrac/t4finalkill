@@ -1,7 +1,7 @@
 # t4finalkill
 Final Kill Cam mod for Plutonium T4 (MP).
 
-Derived from CoD4 version, credits to original author for base. (FzBr.d4rk)
+Derived from CoD4 version, credits to original author for [base](https://www.moddb.com/mods/final-killcam/downloads/final-killcam-24). (FzBr.d4rk)
 
 Credits to Xevrac and Horizonz for porting and implementing missing functions, features, testing etc.
 
