@@ -25,8 +25,10 @@ Ported by [Xevnet](https://xevnet.au).
 
 # Notes
 
-* Camera follow on kill-from-object
-  * I.e. A grenade kills a player, the camera does not follow the grenade, only the player
+* Final Kill camera does not follow special kills only the enemies 1st or 3rd person camera:
+  * When a player is killed by an attack dog
+  * When a player is killed by a throwable weapon
+  * When a player is killed by artillery
 * You can press `F3` to change from 3rd Person and 1st Person during the final kill
 
 # Installation
