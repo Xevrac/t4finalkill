@@ -36,5 +36,6 @@ Ported by [Xevnet](https://xevnet.au).
 i) Download the release
 
 ii) Copy all files from `gsc` to `.\t4\main_shared\maps\mp\gametypes\`
+> ℹ️ Your root server folder is represented by `.\t4\`
 
 iii) Launch your server and enjoy this release!
