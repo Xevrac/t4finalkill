@@ -388,7 +388,7 @@ onSpawnPlayer()
 							"cg_deadHearTeamLiving", 0,
 							"cg_deadHearAllLiving", 0,
 							"cg_everyoneHearsEveryone", 0,
-							"g_compassShowEnemies", 1 );
+							"g_compassShowEnemies", 0 );
 	}
 
 	assert( isDefined(spawnpoint) );
