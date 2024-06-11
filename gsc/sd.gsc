@@ -948,7 +948,7 @@ playSoundinSpace( alias, origin )
 	org = spawn( "script_origin", origin );
 	org.origin = origin;
 	org playSound( alias  );
-	wait 10; // MP doesn't have "sounddone" notifies =(
+	wait 10; // MP doesn't have "sounddone" 
 	org delete();
 }
 
