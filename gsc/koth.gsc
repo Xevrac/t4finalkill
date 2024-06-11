@@ -26,7 +26,8 @@ main()
 	level.onSpawnPlayerUnified = ::onSpawnPlayerUnified;
 	level.playerSpawnedCB = ::koth_playerSpawnedCB;
 	level.onPlayerKilled = ::onPlayerKilled;
-	level.onEndGame= ::onEndGame;
+	level.onTimeLimit = ::default_onTimeLimit;
+	level.onScoreLimit = ::default_onScoreLimit;
 
 	precacheShader( "compass_waypoint_captureneutral" );
 	precacheShader( "compass_waypoint_capture" );
@@ -808,7 +809,7 @@ PickRadioToSpawn()
 	if ( num["allies"] == 0 || num["axis"] == 0 )
 	{
 		radio = level.radios[ randomint( level.radios.size) ];
-		while ( isDefined( level.prevradio ) && radio == level.prevradio ) // so lazy
+		while ( isDefined( level.prevradio ) && radio == level.prevradio )
 			radio = level.radios[ randomint( level.radios.size) ];
 		
 		level.prevradio2 = level.prevradio;
@@ -859,6 +860,7 @@ PickRadioToSpawn()
 
 onPlayerKilled( eInflictor, attacker, iDamage, sMeansOfDeath, sWeapon, vDir, sHitLoc, psOffsetTime, deathAnimDuration )
 {
+thread maps\mp\gametypes\_finalkillcam::onPlayerKilled(eInflictor, attacker, iDamage, sMeansOfDeath, sWeapon, vDir, sHitLoc, psOffsetTime, deathAnimDuration);
 	if ( !isPlayer( attacker ) || (!self.touchTriggers.size && !attacker.touchTriggers.size) || attacker.pers["team"] == self.pers["team"] )
 		return;
 
@@ -905,16 +907,69 @@ onPlayerKilled( eInflictor, attacker, iDamage, sMeansOfDeath, sWeapon, vDir, sHi
 		}
 	}
 
-	// Experimental
-	thread maps\mp\gametypes\_finalkillcam::onPlayerKilled(eInflictor, attacker, iDamage, sMeansOfDeath, sWeapon, vDir, sHitLoc, psOffsetTime, deathAnimDuration);
 }
 
-onEndGame( winningTeam )
+default_onTimeLimit()
 {
+	winner = undefined;
+	if ( level.teamBased )
+	{
+		if ( game["teamScores"]["allies"] == game["teamScores"]["axis"] )
+			winner = "tie";
+		else if ( game["teamScores"]["axis"] > game["teamScores"]["allies"] )
+			winner = "axis";
+		else
+			winner = "allies";
+		logString( "time limit, win: " + winner + ", allies: " + game["teamScores"]["allies"] + ", opfor: " + game["teamScores"]["axis"] );
+	}
+	else
+	{
+		winner = maps\mp\gametypes\_globallogic::getHighestScoringPlayer();
+		if ( isDefined( winner ) )
+			logString( "time limit, win: " + winner.name );
+		else
+			logString( "time limit, tie" );
+	}
+	makeDvarServerInfo( "ui_text_endreason", game["strings"]["time_limit_reached"] );
+	setDvar( "ui_text_endreason", game["strings"]["time_limit_reached"] );
 	for ( i = 0; i < level.radios.size; i++ )
 	{
 		level.radios[i].gameobject maps\mp\gametypes\_gameobjects::allowUse( "none" );
 	}
+	thread maps\mp\gametypes\_finalkillcam::endGame( winner, game["strings"]["time_limit_reached"] );
+}
+
+default_onScoreLimit()
+{
+	if ( !level.endGameOnScoreLimit )
+		return;
+	winner = undefined;
+	if ( level.teamBased )
+	{
+		if ( game["teamScores"]["allies"] == game["teamScores"]["axis"] )
+			winner = "tie";
+		else if ( game["teamScores"]["axis"] > game["teamScores"]["allies"] )
+			winner = "axis";
+		else
+			winner = "allies";
+		logString( "scorelimit, win: " + winner + ", allies: " + game["teamScores"]["allies"] + ", opfor: " + game["teamScores"]["axis"] );
+	}
+	else
+	{
+		winner = maps\mp\gametypes\_globallogic::getHighestScoringPlayer();
+		if ( isDefined( winner ) )
+			logString( "scorelimit, win: " + winner.name );
+		else
+			logString( "scorelimit, tie" );
+	}
+	makeDvarServerInfo( "ui_text_endreason", game["strings"]["score_limit_reached"] );
+	setDvar( "ui_text_endreason", game["strings"]["score_limit_reached"] );
+	level.forcedEnd = true; 
+	for ( i = 0; i < level.radios.size; i++ )
+	{
+		level.radios[i].gameobject maps\mp\gametypes\_gameobjects::allowUse( "none" );
+	}
+	thread maps\mp\gametypes\_finalkillcam::endGame( winner, game["strings"]["score_limit_reached"] );
 }
 
 // spawning influencer generation callback
