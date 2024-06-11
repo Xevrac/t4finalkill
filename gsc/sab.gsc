@@ -35,6 +35,8 @@ main()
 	
 	// register sabotage spawn influencer callback
 	level.callbackPlayerSpawnGenerateInfluencers= ::sabPlayerSpawnGenerateInfluencers;
+	// register the finalkillcam and associate to onplayerkilled
+	level.onPlayerKilled = ::onPlayerKilled;
 	
 	level.teamBased = true;
 	level.overrideTeamScore = true;
@@ -68,6 +70,7 @@ main()
 		level.onStartGameType = ::onStartGameType;
 		level.onSpawnPlayer = ::onSpawnPlayer;
 		level.onSpawnPlayerUnified = ::onSpawnPlayerUnified;
+		level.onEndGame = ::onEndGame;
 	
 		level.endGameOnScoreLimit = false;
 		
@@ -275,7 +278,9 @@ onOvertime()
 		}
 		wait ( 1.0 );
 	}
-	sd_endGame( "tie", game["strings"]["tie"] );
+
+	// thread maps\mp\gametypes\_globallogic::endGame( "tie", game["strings"]["tie"] );
+	thread maps\mp\gametypes\_finalkillcam::endGame( "tie", game["strings"]["tie"] );
 }
 
 
@@ -288,11 +293,14 @@ onDeadEvent( team )
 	{
 		if ( level.bombPlanted )
 		{
-			sd_endGame( level.bombPlantedBy, game["strings"][level.bombPlantedBy+"_mission_accomplished"] );
+			[[level._setTeamScore]]( level.bombPlantedBy, [[level._getTeamScore]]( level.bombPlantedBy ) + 1 );
+			// thread maps\mp\gametypes\_globallogic::endGame( level.bombPlantedBy, game["strings"][level.bombPlantedBy+"_mission_accomplished"] );
+			thread maps\mp\gametypes\_finalkillcam::endGame( level.bombPlantedBy, game["strings"][level.bombPlantedBy+"_mission_accomplished"] );
 		}
 		else
 		{
-			sd_endGame( "tie", game["strings"]["tie"] );
+			// thread maps\mp\gametypes\_globallogic::endGame( "tie", game["strings"]["tie"] );
+			thread maps\mp\gametypes\_finalkillcam::endGame( "tie", game["strings"]["tie"] );
 		}
 	}
 	else if ( level.bombPlanted )
@@ -302,11 +310,16 @@ onDeadEvent( team )
 			level.plantingTeamDead = true;
 			return;
 		}
-		sd_endGame( level.bombPlantedBy, game["strings"][level.otherTeam[level.bombPlantedBy]+"_eliminated"] );
+			
+		[[level._setTeamScore]]( level.bombPlantedBy, [[level._getTeamScore]]( level.bombPlantedBy ) + 1 );
+		// thread maps\mp\gametypes\_globallogic::endGame( level.bombPlantedBy, game["strings"][level.otherTeam[level.bombPlantedBy]+"_eliminated"] );
+		thread maps\mp\gametypes\_finalkillcam::endGame( level.bombPlantedBy, game["strings"][level.otherTeam[level.bombPlantedBy]+"_eliminated"] );
 	}
 	else
 	{
-		sd_endGame( level.otherTeam[team], game["strings"][team+"_eliminated"] );
+		[[level._setTeamScore]]( level.otherTeam[team], [[level._getTeamScore]]( level.otherTeam[team] ) + 1 );
+		// thread maps\mp\gametypes\_globallogic::endGame( level.otherTeam[team], game["strings"][team+"_eliminated"] );
+		thread maps\mp\gametypes\_finalkillcam::endGame( level.otherTeam[team], game["strings"][team+"_eliminated"] );
 	}
 }
 
@@ -702,7 +715,8 @@ onUse( player )
 		
 		if ( level.inOverTime && isDefined( level.plantingTeamDead ) )
 		{
-			sd_endGame( player.pers["team"], game["strings"][level.bombPlantedBy+"_eliminated"] );
+			// thread maps\mp\gametypes\_globallogic::endGame( player.pers["team"], game["strings"][level.bombPlantedBy+"_eliminated"] );
+			thread maps\mp\gametypes\_finalkillcam::endGame( player.pers["team"], game["strings"][level.bombPlantedBy+"_eliminated"] );
 			return;
 		}
 		
@@ -788,7 +802,7 @@ bombPlanted( destroyedObj, team )
 	
 	// end the round without resetting the timer
 	// thread maps\mp\gametypes\_globallogic::endGame( team, game["strings"]["target_destroyed"] );
-	sd_endGame( team, game["strings"]["target_destroyed"] );
+	thread maps\mp\gametypes\_finalkillcam::endGame( team, game["strings"]["target_destroyed"] );
 }
 
 
@@ -797,7 +811,7 @@ playSoundinSpace( alias, origin )
 	org = spawn( "script_origin", origin );
 	org.origin = origin;
 	org playSound( alias  );
-	wait 10; // MP doesn't have "sounddone"
+	wait 10; // MP doesn't have "sounddone" notifies =(
 	org delete();
 }
 
@@ -850,18 +864,86 @@ bombDefused( object )
 	level notify("bomb_defused");	
 }
 
+onPlayerKilled(eInflictor, attacker, iDamage, sMeansOfDeath, sWeapon, vDir, sHitLoc, psOffsetTime, deathAnimDuration)
+{
+   thread maps\mp\gametypes\_finalkillcam::onPlayerKilled(eInflictor, attacker, iDamage, sMeansOfDeath, sWeapon, vDir, sHitLoc, psOffsetTime, deathAnimDuration);
+}
+
+onEndGame( winningTeam )
+{
+	if ( isdefined( winningTeam ) && (winningTeam == "allies" || winningTeam == "axis") )
+		[[level._setTeamScore]]( winningTeam, [[level._getTeamScore]]( winningTeam ) + 1 );	
+}
+
 // spawning influencer generation callback
 // return an array of influencer structs
 sabPlayerSpawnGenerateInfluencers(
 	player_entity, // the player who wants to spawn
 	spawn_influencers) // reference to an influencer array struct
 {
-
+/* ###stefan $REMOVED decided we don't want any special influencers for sabotage
+	// sabotage: influencer around friendly base
+	sab_friendly_base_influencer_score= level.spawnsystem.sab_friendly_base_influencer_score;
+	sab_friendly_base_influencer_score_curve= level.spawnsystem.sab_friendly_base_influencer_score_curve;
+	sab_friendly_base_influencer_radius= level.spawnsystem.sab_friendly_base_influencer_radius;
+	
+	// sabotage: influencer around enemy base
+	sab_enemy_base_influencer_score= level.spawnsystem.sab_enemy_base_influencer_score;
+	sab_enemy_base_influencer_score_curve= level.spawnsystem.sab_enemy_base_influencer_score_curve;
+	sab_enemy_base_influencer_radius= level.spawnsystem.sab_enemy_base_influencer_radius;
+	
+	// sabotage: negative influencer around carrier
+	sab_carrier_influencer_score= level.spawnsystem.sab_carrier_influencer_score;
+	sab_carrier_influencer_score_curve= level.spawnsystem.sab_carrier_influencer_score_curve;
+	sab_carrier_influencer_radius= level.spawnsystem.sab_carrier_influencer_radius;
+	
+	// create influencers around bases
+	for (team_index= 0; team_index<level.teams.size; team_index++)
+	{
+		base_team= level.teams[team_index];
+		bomb_zone= level.bombZones[base_team];
+		bomb_zone_trigger= bomb_zone.trigger;
+		bomb_zone_origin= bomb_zone_trigger GetOrigin();
+		
+		if (teams_have_enmity(player_entity.team, base_team))
+		{
+			score= sab_enemy_base_influencer_score;
+			score_curve= sab_enemy_base_influencer_score_curve;
+			radius= sab_enemy_base_influencer_radius;
+		}
+		else
+		{
+			score= sab_friendly_base_influencer_score;
+			score_curve= sab_friendly_base_influencer_score_curve;
+			radius= sab_friendly_base_influencer_radius;
+		}
+		
+		spawn_influencers.a[spawn_influencers.a.size]= create_sphere_influencer(
+			"game_mode", // type
+			( 1.0, 0.0, 0.0 ), // forward
+			( 0.0, 0.0, 1.0 ), // up
+			bomb_zone_origin, // origin
+			score, // score
+			score_curve, // score_curve
+			radius); // radius,
+	}
+	
+	// create influencer around carrier
+	if (IsDefined(level.sabBomb) &&
+		IsDefined(level.sabBomb.carrier))
+	{
+		carrier_angles= level.sabBomb.carrier GetAngles();
+		carrier_position= level.sabBomb.carrier GetOrigin();
+		
+		spawn_influencers.a[spawn_influencers.a.size]= create_sphere_influencer(
+			"game_mode", // type
+			AnglesToForward(carrier_angles), // forward
+			AnglesToUp(carrier_angles), // up
+			carrier_position, // origin
+			sab_carrier_influencer_score, // score
+			sab_carrier_influencer_score_curve, // score_curve
+			sab_carrier_influencer_radius); // radius
+	}*/
 	
 	return spawn_influencers;
-}
-
-sd_endGame( winningTeam, endReasonText )
-{
-	thread maps\mp\gametypes\_finalkillcam::endGame( winningTeam, endReasonText );
 }
