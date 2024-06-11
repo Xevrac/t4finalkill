@@ -19,8 +19,7 @@ Ported by [Xevnet](https://xevnet.au).
 
 * Working slow motion
 * Responsive to gamemode roundEnd() types
-* Supports DM, TDM, DOM, SAB, SD, TWAR
-* Unsupported KOTH // Experimental
+* Supports DM, TDM, DOM, SAB, SD, TWAR, KOTH
 * Disables enemy pips on HUD radar when overtime in SAB
 
 # Notes
