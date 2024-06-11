@@ -279,9 +279,10 @@ endGame( winner, endReasonText )
 	level.inGracePeriod = false;
 	level notify ( "game_ended" );
     
-    if ( isdefined( winner ) && (level.gametype == "sd" || level.gametype == "sab" ) )
+    if ( isdefined( winner ) && level.gametype == "sd" )
 		[[level._setTeamScore]]( winner, [[level._getTeamScore]]( winner ) + 1 );
-	setGameEndTime( 0 );
+	
+	setGameEndTime( 0 ); // stop/hide the timers
 	
 	if ( level.rankedMatch )
 	{
@@ -467,7 +468,7 @@ endGame( winner, endReasonText )
 			maps\mp\gametypes\_globallogic::roundEndWait( level.halftimeRoundEndDelay, !(maps\mp\gametypes\_globallogic::hitRoundLimit() || maps\mp\gametypes\_globallogic::hitScoreLimit()) );
 		}
         
-        if(level.players.size > 0 && (level.gametype == "sd" || level.gametype == "sab" ) && !maps\mp\gametypes\_globallogic::hitScoreLimit())
+        if(level.players.size > 0 && level.gametype == "sd" && !maps\mp\gametypes\_globallogic::hitScoreLimit())
         {
             level.killcam_style = 1;
             thread startFK( winner );
@@ -570,7 +571,7 @@ endGame( winner, endReasonText )
         thread startFK( winner );
     }
     
-    if((level.gametype == "sd" || level.gametype == "sab") && maps\mp\gametypes\_globallogic::hitScoreLimit() && level.players.size > 0)
+    if(level.gametype == "sd" && maps\mp\gametypes\_globallogic::hitScoreLimit() && level.players.size > 0)
     {
         level.killcam_style = 0;
         thread startFK( winner );
